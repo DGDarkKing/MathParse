@@ -35,14 +35,14 @@ namespace MathParse
             richTextBoxFunc.Text = richTextBoxFunc.Text.Replace(" ", "");
             richTextBoxFunc.Text = richTextBoxFunc.Text.ToLower();
 
-            if (CheckFunc())
+            try
             {
                 mathFunc.Expr = richTextBoxFunc.Text;
                 BuildGraph();
             }
-            else
+            catch(Exception exc)
             {
-                MessageBox.Show("График не может быть построен");
+                MessageBox.Show(exc.Message + "\nГрафик не может быть построен");
             }
         }
 
@@ -96,53 +96,6 @@ namespace MathParse
 
 
 
-        private bool CheckFunc()
-        {
-            int countOpenBracket = 0, countCloseBracket = 0;
-            for (int i = 0; i < richTextBoxFunc.Text.Length; i++)
-            {
-                i = richTextBoxFunc.Text.IndexOf('(', i);
-                if (i != -1)
-                    countOpenBracket++;
-                else
-                    break;
-            }
-
-            for (int i = 0; i < richTextBoxFunc.Text.Length; i++)
-            {
-                i = richTextBoxFunc.Text.IndexOf(')', i);
-                if (i != -1)
-                    countCloseBracket++;
-                else
-                    break;
-            }
-
-            if(countCloseBracket!=countOpenBracket)
-            {
-                MessageBox.Show("Не хватает скобок");
-                return false;
-            }
-
-
-
-            foreach (var item in MathFuncParser.baseFuncs)
-            {
-                int i = richTextBoxFunc.Text.IndexOf(item);
-                while(i!=-1)
-                {
-                    if (richTextBoxFunc.Text[i + item.Length] != '(')
-                    {
-                        MessageBox.Show("Нет открывающейся скобоки после " + item);
-                        return false;
-                    }
-
-                    i = richTextBoxFunc.Text.IndexOf(item, i+1);
-                }
-            }
-
-
-
-            return true;
-        }
+       
     }
 }

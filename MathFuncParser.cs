@@ -15,6 +15,21 @@ namespace MathParse
 
 
         Node root;
+        string expr;
+        public string Expr
+        {
+            get
+            {
+                return expr;
+            }
+
+            set
+            {
+                SetExpr(value);
+            }
+        }
+
+
 
 
         public MathFuncParser(string mathExpression)
@@ -24,87 +39,86 @@ namespace MathParse
 
 
 
-        string expr;
-        public string Expr {
-            get
+       
+
+        //
+        public void SetExpr(string expression)
+        {
+            CheckFunc(expression);
+
+            expr = expression;
+            List<string> tokenList = new List<string>();
+            tokenSplit(tokenList);
+
+            List<Node> nodeList = new List<Node>();
+
+            int brackeOpenOuter = tokenList.IndexOf("(");
+            int brackeOpenInner = tokenList.IndexOf("(", brackeOpenOuter + 1);
+            int brackeCloseOuter = tokenList.IndexOf(")");
+            while (tokenList.Contains("("))
             {
-                return expr;
-            }
-
-            set
-            {
-                expr = value;
-                List<string> tokenList = new List<string>();
-                tokenSplit(tokenList);
-
-                List<Node> nodeList = new List<Node>();
-
-                int brackeOpenOuter = tokenList.IndexOf("(");
-                int brackeOpenInner = tokenList.IndexOf("(", brackeOpenOuter + 1);
-                int brackeCloseOuter = tokenList.IndexOf(")");
-                while (tokenList.Contains("("))
+                if (brackeOpenInner != -1 && brackeOpenInner < brackeCloseOuter)
                 {
-                    if(brackeOpenInner!=-1 && brackeOpenInner < brackeCloseOuter)
-                    {
-                        brackeOpenOuter = brackeOpenInner;
-                        brackeOpenInner = tokenList.IndexOf("(", brackeOpenOuter + 1);
-                    }
-                    else
-                    {
-
-                        disassemble(tokenList, brackeOpenOuter+1, brackeCloseOuter - 1, nodeList);
-
-                        bool isFunc = false;
-
-                        foreach (var item in baseFuncs)
-                        {
-                            if(tokenList[brackeOpenOuter-1] == item)
-                            {
-                                Node nodeF = new NodeFunc(item);
-
-                                int nodeInd = int.Parse(tokenList[brackeOpenOuter + 1].Substring(1));
-                                nodeF.children[0] = nodeList[nodeInd];
-                                nodeF.children[0].parent = nodeF;
-
-                                nodeList.RemoveAt(nodeInd);
-                                nodeList.Add(nodeF);
-
-                                tokenList.RemoveAt(brackeOpenOuter - 1);
-                                tokenList.RemoveAt(brackeOpenOuter - 1);
-                                tokenList.RemoveAt(brackeOpenOuter - 1);
-                                tokenList.RemoveAt(brackeOpenOuter - 1);
-
-                                tokenList.Insert(brackeOpenOuter - 1, "N" + (nodeList.Count - 1).ToString());
-
-
-                                isFunc = true;
-                                break;
-                            }
-                        }
-
-
-                        if(!isFunc)
-                        {
-                            tokenList.RemoveAt(brackeOpenOuter+2);
-                            tokenList.RemoveAt(brackeOpenOuter);
-
-                        }
-
-                        brackeOpenOuter = tokenList.IndexOf("(");
-                        brackeOpenInner = tokenList.IndexOf("(", brackeOpenOuter + 1);
-                        brackeCloseOuter = tokenList.IndexOf(")");
-                    }
+                    brackeOpenOuter = brackeOpenInner;
+                    brackeOpenInner = tokenList.IndexOf("(", brackeOpenOuter + 1);
                 }
+                else
+                {
+
+                    disassemble(tokenList, brackeOpenOuter + 1, brackeCloseOuter - 1, nodeList);
+
+                    bool isFunc = false;
+
+                    foreach (var item in baseFuncs)
+                    {
+                        if (tokenList[brackeOpenOuter - 1] == item)
+                        {
+                            Node nodeF = new NodeFunc(item);
+
+                            int nodeInd = int.Parse(tokenList[brackeOpenOuter + 1].Substring(1));
+                            nodeF.children[0] = nodeList[nodeInd];
+                            nodeF.children[0].parent = nodeF;
+
+                            nodeList.RemoveAt(nodeInd);
+                            nodeList.Add(nodeF);
+
+                            tokenList.RemoveAt(brackeOpenOuter - 1);
+                            tokenList.RemoveAt(brackeOpenOuter - 1);
+                            tokenList.RemoveAt(brackeOpenOuter - 1);
+                            tokenList.RemoveAt(brackeOpenOuter - 1);
+
+                            tokenList.Insert(brackeOpenOuter - 1, "N" + (nodeList.Count - 1).ToString());
 
 
-                disassemble(tokenList, 0, tokenList.Count-1, nodeList);
+                            isFunc = true;
+                            break;
+                        }
+                    }
 
 
-                root = nodeList[0];
+                    if (!isFunc)
+                    {
+                        tokenList.RemoveAt(brackeOpenOuter + 2);
+                        tokenList.RemoveAt(brackeOpenOuter);
 
+                    }
+
+                    brackeOpenOuter = tokenList.IndexOf("(");
+                    brackeOpenInner = tokenList.IndexOf("(", brackeOpenOuter + 1);
+                    brackeCloseOuter = tokenList.IndexOf(")");
+                }
             }
+
+
+            disassemble(tokenList, 0, tokenList.Count - 1, nodeList);
+
+
+            root = nodeList[0];
+
         }
 
+
+        //
         private void disassemble(List<string> tokenList, int startInd, int endInd, List<Node> nodeList)
         {
             List<string> exprForDisassem = new List<string>();
@@ -296,7 +310,7 @@ namespace MathParse
 
 
 
-
+        //
         private void tokenSplit(List<string> tokenList)
         {
             for (int i = 0; i < expr.Length; i++)
@@ -384,10 +398,68 @@ namespace MathParse
 
 
 
-
+        //
         public double Calc(double x)
         {
             return root.Calc(x);
+        }
+
+
+
+
+        //
+        private void CheckFunc(string Expression)
+        {
+            try
+            {
+            
+                int countOpenBracket = 0, countCloseBracket = 0;
+                for (int i = 0; i < Expression.Length; i++)
+                {
+                    i = Expression.IndexOf('(', i);
+                    if (i != -1)
+                        countOpenBracket++;
+                    else
+                        break;
+                }
+
+                for (int i = 0; i < Expression.Length; i++)
+                {
+                    i = Expression.IndexOf(')', i);
+                    if (i != -1)
+                        countCloseBracket++;
+                    else
+                        break;
+                }
+
+                if (countCloseBracket != countOpenBracket)
+                {
+                    throw new Exception("Не хватает скобок");
+                }
+
+
+
+                foreach (var item in MathFuncParser.baseFuncs)
+                {
+                    int i = Expression.IndexOf(item);
+                    while (i != -1)
+                    {
+                        if (Expression[i + item.Length] != '(')
+                        {
+                            throw new Exception("Нет открывающейся скобоки после " + item) ;
+                        }
+
+                        i = Expression.IndexOf(item, i + 1);
+                    }
+                }
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+
         }
 
 
@@ -397,13 +469,9 @@ namespace MathParse
 
 
 
-
-
-
-
-
-
-
+/// <summary>
+/// Node classes of tree
+/// </summary>
 
 
         abstract class Node
@@ -580,4 +648,7 @@ namespace MathParse
 
 
     }
+
+
+
 }
