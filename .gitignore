@@ -1,0 +1,5 @@
+*
+
+!./*.cs
+!README.md
+!.gitignore
