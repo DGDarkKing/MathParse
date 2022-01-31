@@ -13,3 +13,6 @@ Working version wich uses binary-unary tree and recursion to traverse it.
 * Uses tree
 * Call through recursion
 <br /><br /><br /><br />
+## BUGS:
+* Unary operations in complex exprs
+* Mb 1/x
