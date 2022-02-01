@@ -173,6 +173,7 @@ namespace MathParse
                 if(ind==0)
                 {
                     oper.children[0] = null;
+                    int nodeInd = -1;
 
                     if (exprForDisassem[ind + 1][0] >= '0' && exprForDisassem[ind + 1][0] <= '9' ||
                         exprForDisassem[ind + 1] == "pi" || exprForDisassem[ind + 1] == "e")
@@ -181,7 +182,7 @@ namespace MathParse
                         oper.children[1] = new NodeX();
                     else
                     {
-                        int nodeInd = int.Parse(exprForDisassem[ind + 1].Substring(1));
+                        nodeInd = int.Parse(exprForDisassem[ind + 1].Substring(1));
                         oper.children[1] = nodeList[nodeInd];
                         oper.children[1].parent = oper;
 
@@ -189,18 +190,22 @@ namespace MathParse
                     }
 
 
-                    nodeList.Add(oper);
+                    nodeList.Insert(nodeInd, oper);
 
                     exprForDisassem.RemoveAt(ind);
                     exprForDisassem.RemoveAt(ind);
 
-                    exprForDisassem.Insert(0, "N"+(nodeList.Count-1).ToString());
+                    if (exprForDisassem.Contains("N" + (nodeList.Count - 1).ToString()))
+                        exprForDisassem.Insert(0, "N" + (nodeInd).ToString());
+                    else
+                        exprForDisassem.Insert(0, "N" + (nodeList.Count - 1).ToString());
 
 
                 }
                 else if(ind == exprForDisassem.Count-1)
                 {
                     oper.children[1] = null;
+                    int nodeInd = -1;
 
                     if (exprForDisassem[ind - 1][0] >= '0' && exprForDisassem[ind - 1][0] <= '9' ||
                         exprForDisassem[ind - 1] == "pi" || exprForDisassem[ind - 1] == "e")
@@ -209,7 +214,7 @@ namespace MathParse
                         oper.children[0] = new NodeX();
                     else
                     {
-                        int nodeInd = int.Parse(exprForDisassem[ind - 1].Substring(1));
+                        nodeInd = int.Parse(exprForDisassem[ind - 1].Substring(1));
                         oper.children[0] = nodeList[nodeInd];
                         oper.children[0].parent = oper;
 
@@ -217,12 +222,15 @@ namespace MathParse
                     }
 
 
-                    nodeList.Add(oper);
+                    nodeList.Insert(nodeInd, oper);
 
-                    exprForDisassem.RemoveAt(ind-1);
-                    exprForDisassem.RemoveAt(ind-1);
+                    exprForDisassem.RemoveAt(ind);
+                    exprForDisassem.RemoveAt(ind);
 
-                    exprForDisassem.Add("N" + (nodeList.Count - 1).ToString());
+                    if (exprForDisassem.Contains("N" + (nodeList.Count - 1).ToString()))
+                        exprForDisassem.Insert(0, "N" + (nodeInd).ToString());
+                    else
+                        exprForDisassem.Add("N" + (nodeList.Count - 1).ToString());
                 }
                 else
                 {
